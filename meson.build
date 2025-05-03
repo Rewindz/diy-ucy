@@ -1,0 +1,12 @@
+project('diy-ucy', 'c')
+
+
+ncursesdep = dependency('ncurses')
+
+typesincl = include_directories('./menus/')
+typeslib = static_library('types', './menus/types.c')
+typesdep = declare_dependency(link_with : typeslib, include_directories : typesincl)
+
+
+
+executable('diyucy', 'main.c', c_args : ['-Wall'],  dependencies : [ncursesdep, typesdep])
