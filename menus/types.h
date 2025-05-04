@@ -53,6 +53,11 @@ menu_t *create_new_menu(int count, ...);
 section_t *create_new_section(const char *title, menu_t *menu);
 menu_screen_t *create_new_menu_screen(int count, ...);
 menu_item_t *get_selected_item(menu_screen_t *screen);
+void replace_menu(menu_screen_t *screen, menu_t *old, menu_t *new);
+
+
+void add_item_callback(menu_item_t *item, menu_item_callback_t cb);
+void remove_item_callback(menu_item_t* item);
 
 void move_screen_down(menu_screen_t *screen);
 void move_screen_up(menu_screen_t *screen);

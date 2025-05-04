@@ -69,6 +69,22 @@ menu_item_t *create_new_menu_item(item_type_t type, const char *label)
   return item;
 }
 
+void replace_menu(menu_screen_t *screen, menu_t *old, menu_t *new)
+{
+  if(!screen || !old || !new)
+    return;
+
+  section_t *section = NULL;
+  for (int i = 0; i < screen->count; ++i){
+    if(screen->sections[i]->menu == old)
+      section = screen->sections[i];
+  }
+
+  free_whole_menu(old);
+  section->menu = new;
+  
+}
+
 void free_whole_screen(menu_screen_t *screen)
 {
   for(int i = 0; i < screen->count; ++i){
