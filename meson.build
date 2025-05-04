@@ -1,5 +1,6 @@
 project('diy-ucy', 'c')
 
+files = ['main.c', 'render.c', 'input.c', 'constants.c', 'menus/appmenu.c']
 
 ncursesdep = dependency('ncurses')
 
@@ -9,4 +10,4 @@ typesdep = declare_dependency(link_with : typeslib, include_directories : typesi
 
 
 
-executable('diyucy', 'main.c', c_args : ['-Wall'],  dependencies : [ncursesdep, typesdep])
+executable('diyucy', files, c_args : ['-Wall'],  dependencies : [ncursesdep, typesdep])

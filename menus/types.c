@@ -12,7 +12,7 @@ menu_screen_t *create_new_menu_screen(int count, ...)
   va_list args;
   va_start(args, count);
   screen->count = count;
-  screen->sections = calloc(1, sizeof(section_t *));
+  screen->sections = calloc(count, sizeof(section_t *));
   if(!screen->sections)
     return NULL;
   
@@ -115,7 +115,7 @@ void move_screen_down(menu_screen_t *screen)
 {
   menu_t *menu
     = screen->sections[screen->selected_section]->menu;
-  if(menu->selected_item + 1 > menu->item_count)
+  if(menu->selected_item + 1 > menu->item_count - 1)
     return;
 
   menu->selected_item++;
@@ -131,9 +131,25 @@ void move_screen_left(menu_screen_t *screen)
 
 void move_screen_right(menu_screen_t *screen)
 {
-  if(screen->selected_section + 1 > screen->count)
+  if(screen->selected_section + 1 > screen->count - 1)
     return;
 
   screen->selected_section++;
 }
 
+menu_item_t *get_selected_item(menu_screen_t *screen)
+{
+  section_t *section = screen->sections[screen->selected_section];
+  menu_item_t *item = section->menu->items[section->menu->selected_item];
+  return item; 
+}
+
+void add_item_callback(menu_item_t *item, menu_item_callback_t cb)
+{
+  item->cb = cb;
+}
+
+void remove_item_callback(menu_item_t* item)
+{
+  item->cb = NULL;
+}

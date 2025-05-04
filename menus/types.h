@@ -5,6 +5,9 @@
 #include <string.h>
 #include <stdarg.h>
 
+
+typedef void (* menu_item_callback_t)(void *); // menu_screen_t ptr idk how to forward declare this lol
+
 typedef enum
 {
   ITEM_TYPE_INPUT,
@@ -17,6 +20,7 @@ typedef struct
   item_type_t type;
   char *label;
   char *value;
+  menu_item_callback_t cb;
 }menu_item_t;
 
 typedef struct
@@ -48,6 +52,7 @@ menu_item_t *create_new_menu_item(item_type_t type, const char* label);
 menu_t *create_new_menu(int count, ...);
 section_t *create_new_section(const char *title, menu_t *menu);
 menu_screen_t *create_new_menu_screen(int count, ...);
+menu_item_t *get_selected_item(menu_screen_t *screen);
 
 void move_screen_down(menu_screen_t *screen);
 void move_screen_up(menu_screen_t *screen);
