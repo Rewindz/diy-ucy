@@ -1,8 +1,8 @@
 #include "appmenu.h"
 
 
-MixInputs mix_inputs;
-MixData mix_data;
+MixInputs mix_inputs = {0};
+MixData mix_data = {0};
 menu_t *menu_submit;
 menu_t *menu_flavours;
 
@@ -46,7 +46,7 @@ void remove_flavour_cb(void *screen)
 void submit_recipe_cb(void *screen)
 {
   int flavour_count = menu_flavours->item_count - 2;
-  if(flavour_count <= 2)
+  if(flavour_count <= 0)
     return;
   
   //temp
@@ -62,12 +62,54 @@ void submit_recipe_cb(void *screen)
   Flavor *flavours_arr = calloc(flavour_count, sizeof(Flavor));
   
   for(int i = 0; i < flavour_count; ++i){
-    
+    float temp = 0;
+    sscanf(menu_flavours->items[i + 2]->value, "%f", &temp);
+    flavours_arr[i].percent = temp;
+    flavours_arr[i].isVG = 0;
   }
+
+  mix_inputs.flavors = flavours_arr;
+
+  mix_data = create_mixdata(&mix_inputs);
+  calculate_mix(&mix_data);
+
+  for(int i = 0; i < mix_data.mixAdd.flavorCount; ++i){
+    char buffer[256];
+    sprintf(buffer, "%.2f", mix_data.mixAdd.flavors[i].volume);
+    menu_item_t *item
+      = create_new_menu_item(ITEM_TYPE_LABEL,
+			     buffer);
+    menu_add_item(new_menu, item);
+  }
+
+  {
+    char buffer[256];
+    sprintf(buffer, "Add PG: %.2f", mix_data.mixAdd.addPg.volume);
+    menu_item_t *add_pg
+      = create_new_menu_item(ITEM_TYPE_LABEL,
+			     buffer);
+    sprintf(buffer, "Add VG: %.2f", mix_data.mixAdd.addVg.volume);
+    menu_item_t *add_vg
+      = create_new_menu_item(ITEM_TYPE_LABEL,
+			     buffer);
+    menu_add_item(new_menu, add_pg);
+    menu_add_item(new_menu, add_vg);
+  }
+
+  menu_item_t *submit_btn
+    = create_new_menu_item(ITEM_TYPE_BUTTON,
+			   "Submit");
+  add_item_callback(submit_btn, submit_recipe_cb);
+  menu_add_item(new_menu, submit_btn);
   
   replace_menu((menu_screen_t *)screen, menu_submit, new_menu);
 
   menu_submit = new_menu;
+
+  //mix_data.mixAdd.flavors = NULL;
+  free(flavours_arr);
+
+  clear_and_draw((menu_screen_t *)screen);
 
 }
 
@@ -76,8 +118,6 @@ void submit_recipe_cb(void *screen)
 
 menu_screen_t *create_app_menu()
 {
-
-  MixInputs mix_inputs = {0};
   
   menu_screen_t *screen;
   { //Create sections
