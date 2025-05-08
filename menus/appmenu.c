@@ -1,6 +1,7 @@
 #include "appmenu.h"
 
 
+MixInputs mix_inputs;
 MixData mix_data;
 menu_t *menu_submit;
 menu_t *menu_flavours;
@@ -26,17 +27,47 @@ void by_weight_cb(void *screen)
 
 }
 
+void add_flavour_cb(void *screen)
+{
+  menu_item_t *item
+    = create_new_menu_item(ITEM_TYPE_INPUT,
+			   "Flavour");
+  menu_add_item(menu_flavours, item);
+}
+
+void remove_flavour_cb(void *screen)
+{
+  if(menu_flavours->item_count <= 2)
+    return;
+  menu_remove_item(menu_flavours, menu_flavours->item_count - 1);
+  clear_and_draw((menu_screen_t *)screen);
+}
+
 void submit_recipe_cb(void *screen)
 {
-  menu_item_t *test_lbl
-    = create_new_menu_item(ITEM_TYPE_LABEL,
-			   "Testing!");
-  menu_t *test_menu
-    = create_new_menu(1, test_lbl);
+  int flavour_count = menu_flavours->item_count - 2;
+  if(flavour_count <= 2)
+    return;
+  
+  //temp
+  mix_inputs.batchSize = 120.0f;
+  mix_inputs.baseNicPercent = mgml_to_percent(20.0, DENS_NIC);
+  mix_inputs.basePgPercent = 0.0f;
+  mix_inputs.targetNicPercent = mgml_to_percent(3.0, DENS_NIC);
+  mix_inputs.targetPgPercent = 40.0f;
+  mix_inputs.flavorCount = flavour_count;
+  
+  menu_t *new_menu = create_new_blank_menu();
 
-  replace_menu((menu_screen_t *)screen, menu_submit, test_menu);
+  Flavor *flavours_arr = calloc(flavour_count, sizeof(Flavor));
+  
+  for(int i = 0; i < flavour_count; ++i){
+    
+  }
+  
+  replace_menu((menu_screen_t *)screen, menu_submit, new_menu);
 
-  menu_submit = test_menu;
+  menu_submit = new_menu;
 
 }
 
@@ -46,19 +77,7 @@ void submit_recipe_cb(void *screen)
 menu_screen_t *create_app_menu()
 {
 
-  Flavor flavors[2] = {
-        { .percent = 5.0f, .isVG = 0 },
-        { .percent = 2.0f, .isVG = 0 }
-    };
-
-  
-  mix_data = create_mixdata(120.0f,
-			    mgml_to_percent(20.0f, DENS_NIC),
-			    0.0f,
-			    mgml_to_percent(6.0f, DENS_NIC),
-			    30.0f,
-			    2,
-			    flavors);
+  MixInputs mix_inputs = {0};
   
   menu_screen_t *screen;
   { //Create sections
@@ -126,11 +145,18 @@ menu_screen_t *create_app_menu()
 
     { // Flavours Section
 
-      menu_item_t *dummy
-	= create_new_menu_item(ITEM_TYPE_LABEL,
-			       "Placeholder");
+      menu_item_t *add_f
+	= create_new_menu_item(ITEM_TYPE_BUTTON,
+			       "Add Flavour");
+      add_item_callback(add_f, add_flavour_cb);
+
+      menu_item_t *remove_f
+	= create_new_menu_item(ITEM_TYPE_BUTTON,
+			       "Remove Flavour");
+      add_item_callback(remove_f, remove_flavour_cb);
+      
       menu_t *menu
-	= create_new_menu(1, dummy);
+	= create_new_menu(2, add_f, remove_f);
 
       menu_flavours = menu;
 

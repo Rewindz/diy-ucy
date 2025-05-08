@@ -69,13 +69,7 @@ typedef struct{
   Flavor *flavors;
 } MixInputs;
 
-MixData create_mixdata(float batchSize,
-                       float baseNicPercent,
-                       float basePgPercent,
-                       float targetNicPercent,
-                       float targetPgPercent,
-                       int flavorCount,
-                       const Flavor* flavors);
+MixData create_mixdata(MixInputs *input);
 
 
 // Calculation function declarations

@@ -43,6 +43,7 @@ typedef struct
   section_t **sections;
 }menu_screen_t;
 
+void free_menu_item(menu_item_t *item);
 void free_menu_item_arr(int count, menu_item_t **items);
 void free_whole_menu(menu_t *menu);
 void free_whole_section(section_t *section);
@@ -50,6 +51,9 @@ void free_whole_screen(menu_screen_t *screen);
 
 menu_item_t *create_new_menu_item(item_type_t type, const char* label);
 menu_t *create_new_menu(int count, ...);
+menu_t *create_new_blank_menu();
+void menu_add_item(menu_t *menu, menu_item_t *item);
+void menu_remove_item(menu_t *menu, int id);
 section_t *create_new_section(const char *title, menu_t *menu);
 menu_screen_t *create_new_menu_screen(int count, ...);
 menu_item_t *get_selected_item(menu_screen_t *screen);

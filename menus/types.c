@@ -56,6 +56,59 @@ menu_t *create_new_menu(int count, ...)
   return menu;
 }
 
+menu_t *create_new_blank_menu()
+{
+  menu_t *menu = calloc(1, sizeof(menu_t));
+  if(!menu)
+    return NULL;
+  return menu;
+}
+
+void menu_add_item(menu_t *menu, menu_item_t *item)\
+{
+  if(!menu || !item)
+    return;
+
+  if(menu->item_count <= 0){
+    menu->items = calloc(1, sizeof(menu_item_t *));
+    menu->item_count++;
+  }else{
+    menu->items = reallocarray(menu->items, ++menu->item_count, sizeof(menu_item_t *));
+  }
+
+  if(!menu->items) //Probably should handle this better
+    abort();
+
+  menu->items[menu->item_count - 1] = item;
+  
+}
+
+void menu_remove_item(menu_t *menu, int id)
+{
+  if(!menu)
+    return;
+
+  if(menu->item_count <= id)
+    return;
+
+  menu_item_t *item_tbr = menu->items[id];
+  if(!item_tbr)
+    return;
+
+  menu_item_t **new_arr = calloc(menu->item_count - 1, sizeof(menu_item_t *));
+  int new_count = 0;
+  
+  for(int i = 0; i < menu->item_count; ++i){
+    if(menu->items[i] != item_tbr){
+      new_arr[new_count++] = menu->items[i];
+    }
+  }
+  free(menu->items);
+  menu->items = new_arr;
+  menu->item_count = new_count;
+  free_menu_item(item_tbr);
+}
+
 menu_item_t *create_new_menu_item(item_type_t type, const char *label)
 {
   menu_item_t *item = calloc(1, sizeof(menu_item_t));
@@ -110,11 +163,16 @@ void free_whole_menu(menu_t *menu)
 void free_menu_item_arr(int count, menu_item_t **items)
 {
   for(int i = 0; i < count; ++i){
-    free(items[i]->label);
-    free(items[i]->value);
-    free(items[i]);
+    free_menu_item(items[i]);
   }
   free(items);
+}
+
+void free_menu_item(menu_item_t *item)
+{
+  free(item->label);
+  free(item->value);
+  free(item);
 }
 
 void move_screen_up(menu_screen_t *screen)

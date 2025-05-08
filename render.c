@@ -117,3 +117,8 @@ void draw_input_popup(menu_item_t *item)
 
 }
 
+void clear_and_draw(menu_screen_t *screen) 
+{
+  werase(stdscr);
+  draw_screen(screen); 
+}

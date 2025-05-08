@@ -1,3 +1,4 @@
+
 #include "calcs.h"
 
 void normalize_nic_base(NicBase* base) {
@@ -74,32 +75,26 @@ void calculate_mix(MixData* mix) {
     calculate_totals((NicBase*)&mix->target); // Casting for convenience
 }
 
-MixData create_mixdata(float batchSize,
-                       float baseNicPercent,
-                       float basePgPercent,
-                       float targetNicPercent,
-                       float targetPgPercent,
-                       int flavorCount,
-                       const Flavor* flavors)
+MixData create_mixdata(MixInputs *input)
 {
     MixData mix = {0};
 
-    mix.batchSize = batchSize;
+    mix.batchSize = input->batchSize;
 
     // Nicotine base
-    mix.nicBase.nicPercent = baseNicPercent;
-    mix.nicBase.nomPgPercent = basePgPercent;
-    mix.nicBase.nomVgPercent = 100.0f - basePgPercent;
+    mix.nicBase.nicPercent = input->baseNicPercent;
+    mix.nicBase.nomPgPercent = input->basePgPercent;
+    mix.nicBase.nomVgPercent = 100.0f - input->basePgPercent;
 
     // Target
-    mix.target.nicPercent = targetNicPercent;
-    mix.target.nomPgPercent = targetPgPercent;
-    mix.target.nomVgPercent = 100.0f - targetPgPercent;
+    mix.target.nicPercent = input->targetNicPercent;
+    mix.target.nomPgPercent = input->targetPgPercent;
+    mix.target.nomVgPercent = 100.0f - input->targetPgPercent;
 
     // Flavors
-    if (flavorCount > 0 && flavorCount <= MAX_FLAVORS && flavors != NULL) {
-        mix.mixAdd.flavorCount = flavorCount;
-        memcpy(mix.mixAdd.flavors, flavors, flavorCount * sizeof(Flavor));
+    if (input->flavorCount > 0 && input->flavorCount <= MAX_FLAVORS && input->flavors != NULL) {
+        mix.mixAdd.flavorCount = input->flavorCount;
+        memcpy(mix.mixAdd.flavors, input->flavors, input->flavorCount * sizeof(Flavor));
     }
 
     // Zero out additions (handled later in calc)

@@ -11,5 +11,6 @@
 
 void draw_screen(menu_screen_t *screen);
 void draw_input_popup(menu_item_t *item);
+void clear_and_draw(menu_screen_t *screen);
 
 #endif //RENDER_H_
