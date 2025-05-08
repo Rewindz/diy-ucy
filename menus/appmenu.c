@@ -3,9 +3,12 @@
 
 MixInputs mix_inputs = {0};
 MixData mix_data = {0};
+int nic_by_weight = 0;
 menu_t *menu_submit;
 menu_t *menu_flavours;
-
+menu_t *menu_batch;
+menu_t *menu_target;
+menu_t *menu_base;
 
 
 menu_t *create_results_menu()
@@ -17,14 +20,54 @@ menu_t *create_results_menu()
 
 // Callback Handlers
 
+void base_pg_cb(void *screen)
+{
+  float pg;
+  sscanf(menu_base->items[2]->value, "%f", &pg);
+  char buffer[256];
+  sprintf(buffer, "%.2f", 100.0 - pg);
+  free(menu_base->items[1]->value);
+  menu_base->items[1]->value = strdup(buffer);
+}
+
+void base_vg_cb(void *screen)
+{
+  float vg;
+  sscanf(menu_base->items[1]->value, "%f", &vg);
+  char buffer[256];
+  sprintf(buffer, "%.2f", 100.0 - vg);
+  free(menu_base->items[2]->value);
+  menu_base->items[2]->value = strdup(buffer);
+}
+
+void target_pg_cb(void *screen)
+{
+  float pg;
+  sscanf(menu_target->items[2]->value, "%f", &pg);
+  char buffer[256];
+  sprintf(buffer, "%.2f", 100.0 - pg);
+  free(menu_target->items[1]->value);
+  menu_target->items[1]->value = strdup(buffer);
+}
+
+void target_vg_cb(void *screen)
+{
+  float vg;
+  sscanf(menu_target->items[1]->value, "%f", &vg);
+  char buffer[256];
+  sprintf(buffer, "%.2f", 100.0 - vg);
+  free(menu_target->items[2]->value);
+  menu_target->items[2]->value = strdup(buffer);
+}
+
 void by_vol_cb(void *screen)
 {
-  
+  nic_by_weight = 0;
 }
 
 void by_weight_cb(void *screen)
 {
-
+  nic_by_weight = 1;
 }
 
 void add_flavour_cb(void *screen)
@@ -48,17 +91,32 @@ void submit_recipe_cb(void *screen)
   int flavour_count = menu_flavours->item_count - 2;
   if(flavour_count <= 0)
     return;
-  
-  //temp
-  mix_inputs.batchSize = 120.0f;
-  mix_inputs.baseNicPercent = mgml_to_percent(20.0, DENS_NIC);
-  mix_inputs.basePgPercent = 0.0f;
-  mix_inputs.targetNicPercent = mgml_to_percent(3.0, DENS_NIC);
-  mix_inputs.targetPgPercent = 40.0f;
-  mix_inputs.flavorCount = flavour_count;
+
+  {
+    sscanf(menu_batch->items[0]->value, "%f", &mix_inputs.batchSize);
+    float base_percent = 0.0f;
+    sscanf(menu_base->items[0]->value, "%f", &base_percent);
+    mix_inputs.baseNicPercent = (nic_by_weight ? mgml_to_percent(base_percent, DENS_NIC) : base_percent);
+    
+    float base_vg, base_pg;
+    sscanf(menu_base->items[1]->value, "%f", &base_vg);
+    sscanf(menu_base->items[2]->value, "%f", &base_pg);
+    mix_inputs.basePgPercent = 100.0 - base_vg;
+
+    float target_percent = 0.0f;
+    sscanf(menu_target->items[0]->value, "%f", &target_percent);
+    mix_inputs.targetNicPercent = (nic_by_weight ? mgml_to_percent(target_percent, DENS_NIC) : target_percent);
+
+    float target_vg, target_pg;
+    sscanf(menu_target->items[1]->value, "%f", &target_vg);
+    sscanf(menu_target->items[2]->value, "%f", &target_pg);
+    mix_inputs.targetPgPercent = 100.0 - target_vg;
+    
+  }
   
   menu_t *new_menu = create_new_blank_menu();
 
+  mix_inputs.flavorCount = flavour_count;
   Flavor *flavours_arr = calloc(flavour_count, sizeof(Flavor));
   
   for(int i = 0; i < flavour_count; ++i){
@@ -145,6 +203,8 @@ menu_screen_t *create_app_menu()
       add_item_callback(by_weight, by_weight_cb);
       menu_t *menu
 	= create_new_menu(4, target_vol, str_lbl, by_vol, by_weight);
+
+      menu_batch = menu;
       
       section_batch = create_new_section("Batch", menu);
     }
@@ -156,12 +216,16 @@ menu_screen_t *create_app_menu()
       menu_item_t *vg
 	= create_new_menu_item(ITEM_TYPE_INPUT,
 			       "VG %");
+      add_item_callback(vg, base_vg_cb);
       menu_item_t *pg
 	= create_new_menu_item(ITEM_TYPE_INPUT,
 			       "PG %");
+      add_item_callback(pg, base_pg_cb);
       menu_t *menu
 	= create_new_menu(3, strength, vg, pg);
 
+      menu_base = menu;
+      
       section_nic_base = create_new_section("Nic Base", menu);
 
     }
@@ -173,12 +237,16 @@ menu_screen_t *create_app_menu()
       menu_item_t *vg
 	= create_new_menu_item(ITEM_TYPE_INPUT,
 			       "VG %");
+      add_item_callback(vg, target_vg_cb);
       menu_item_t *pg
 	= create_new_menu_item(ITEM_TYPE_INPUT,
 			       "PG %");
+      add_item_callback(pg, target_pg_cb);
       menu_t *menu
 	= create_new_menu(3, strength, vg, pg);
 
+      menu_target = menu;
+      
       section_target = create_new_section("Target", menu);
       
     }
