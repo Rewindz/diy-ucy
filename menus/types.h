@@ -12,7 +12,8 @@ typedef enum
 {
   ITEM_TYPE_INPUT,
   ITEM_TYPE_BUTTON,
-  ITEM_TYPE_LABEL
+  ITEM_TYPE_LABEL,
+  ITEM_TYPE_LABEL_VALUED
 }item_type_t;
 
 typedef struct

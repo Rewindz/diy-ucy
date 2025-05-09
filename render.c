@@ -7,6 +7,7 @@ void draw_item(int sec_w, int x, int y, menu_item_t *item)
   
   switch(item->type){
   case ITEM_TYPE_INPUT:
+  case ITEM_TYPE_LABEL_VALUED:
     mvprintw(y, x, "%s: %s", item->label, ( (item->value) ? item->value : "\0" ));
     break;
   default:

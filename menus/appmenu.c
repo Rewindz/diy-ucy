@@ -11,14 +11,17 @@ menu_t *menu_target;
 menu_t *menu_base;
 
 
-menu_t *create_results_menu()
+// Callback Handlers
+
+
+// TODO: create TODOs 
+void load_btn_cb(void *screen)
 {
-  
-  return NULL; //todo
 }
 
-
-// Callback Handlers
+void save_btn_cb(void *screen)
+{
+}
 
 void base_pg_cb(void *screen)
 {
@@ -63,11 +66,31 @@ void target_vg_cb(void *screen)
 void by_vol_cb(void *screen)
 {
   nic_by_weight = 0;
+  sprintf(menu_batch->items[4]->value, "%%");
 }
 
 void by_weight_cb(void *screen)
 {
   nic_by_weight = 1;
+  sprintf(menu_batch->items[4]->value, "mg/ml");
+}
+
+void flavour_input_cb(void *screen)
+{
+  menu_item_t *item = get_selected_item((menu_screen_t *)screen);
+
+  //hack
+  menu_item_t *temp_item = create_new_menu_item(ITEM_TYPE_LABEL, "Flavour Name");
+  if(strcmp("Flavour", item->label))
+    temp_item->value = strdup(item->label);
+  draw_input_popup(temp_item);
+
+  //could get away with not freeing here and just transfering
+  // the ptr but its easier this way lol
+  free(item->label);
+  item->label = strdup(temp_item->value);
+  free_menu_item(temp_item);
+  clear_and_draw((menu_screen_t *)screen);
 }
 
 void add_flavour_cb(void *screen)
@@ -75,6 +98,7 @@ void add_flavour_cb(void *screen)
   menu_item_t *item
     = create_new_menu_item(ITEM_TYPE_INPUT,
 			   "Flavour");
+  add_item_callback(item, flavour_input_cb);
   menu_add_item(menu_flavours, item);
 }
 
@@ -86,12 +110,20 @@ void remove_flavour_cb(void *screen)
   clear_and_draw((menu_screen_t *)screen);
 }
 
+
+/**
+   TODO:
+   Need to add the nic base from the calculation
+   Save and Load
+   Print the units in the results
+   UX?
+ **/
 void submit_recipe_cb(void *screen)
 {
   int flavour_count = menu_flavours->item_count - 2;
   if(flavour_count <= 0)
     return;
-
+  
   {
     sscanf(menu_batch->items[0]->value, "%f", &mix_inputs.batchSize);
     float base_percent = 0.0f;
@@ -133,7 +165,7 @@ void submit_recipe_cb(void *screen)
 
   for(int i = 0; i < mix_data.mixAdd.flavorCount; ++i){
     char buffer[256];
-    sprintf(buffer, "%.2f", mix_data.mixAdd.flavors[i].volume);
+    sprintf(buffer, "%s: %.2f", menu_flavours->items[i + 2]->label, mix_data.mixAdd.flavors[i].volume);
     menu_item_t *item
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
@@ -172,8 +204,6 @@ void submit_recipe_cb(void *screen)
 }
 
 
-
-
 menu_screen_t *create_app_menu()
 {
   
@@ -184,6 +214,7 @@ menu_screen_t *create_app_menu()
     section_t *section_target;
     section_t *section_flavours;
     section_t *section_recipe;
+    section_t *section_save;
 
 
     { // Batch Section
@@ -201,9 +232,14 @@ menu_screen_t *create_app_menu()
 	= create_new_menu_item(ITEM_TYPE_BUTTON,
 			       "Weight (mg/ml)");
       add_item_callback(by_weight, by_weight_cb);
-      menu_t *menu
-	= create_new_menu(4, target_vol, str_lbl, by_vol, by_weight);
 
+      menu_item_t *current_selection
+	= create_new_menu_item(ITEM_TYPE_LABEL_VALUED,
+			       "Selection");
+      sprintf(current_selection->value, "%%");
+      menu_t *menu
+	= create_new_menu(5, target_vol, str_lbl, by_vol, by_weight, current_selection);
+    
       menu_batch = menu;
       
       section_batch = create_new_section("Batch", menu);
@@ -288,12 +324,32 @@ menu_screen_t *create_app_menu()
       
     }
 
-    screen = create_new_menu_screen(5,
+    { // Load & Save Section
+
+      menu_item_t *load_btn
+	= create_new_menu_item(ITEM_TYPE_BUTTON,
+			       "Load");
+      add_item_callback(load_btn, load_btn_cb);
+
+      menu_item_t *save_btn
+	= create_new_menu_item(ITEM_TYPE_BUTTON,
+			       "Save");
+      add_item_callback(save_btn, save_btn_cb);
+
+      menu_t *menu
+	= create_new_menu(2, load_btn, save_btn);
+      
+      section_save = create_new_section("Load & Save", menu);
+      
+    }
+
+    screen = create_new_menu_screen(6,
 				    section_batch,
 				    section_nic_base,
 				    section_target,
 				    section_flavours,
-				    section_recipe
+				    section_recipe,
+				    section_save
 				    );
     
   }
