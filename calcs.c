@@ -107,3 +107,9 @@ MixData create_mixdata(MixInputs *input)
 float mgml_to_percent(float mgml, float density) {
     return (mgml / (density * 1000.0f)) * 100.0f;
 }
+
+float volume_to_mass(float volume_ml, float density)
+{
+    return volume_ml * density;
+}
+

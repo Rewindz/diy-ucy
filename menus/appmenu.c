@@ -81,8 +81,10 @@ void flavour_input_cb(void *screen)
 
   //hack
   menu_item_t *temp_item = create_new_menu_item(ITEM_TYPE_LABEL, "Flavour Name");
-  if(strcmp("Flavour", item->label))
+  if(strcmp("Flavour", item->label)){
+    free(temp_item->value);
     temp_item->value = strdup(item->label);
+  }
   draw_input_popup(temp_item);
 
   //could get away with not freeing here and just transfering
@@ -115,6 +117,7 @@ void remove_flavour_cb(void *screen)
    TODO:
    Need to add the nic base from the calculation
    Save and Load
+   Vol and weight in results
    Print the units in the results
    UX?
  **/
@@ -124,7 +127,7 @@ void submit_recipe_cb(void *screen)
   if(flavour_count <= 0)
     return;
   
-  {
+  { // Get data from user inputs
     sscanf(menu_batch->items[0]->value, "%f", &mix_inputs.batchSize);
     float base_percent = 0.0f;
     sscanf(menu_base->items[0]->value, "%f", &base_percent);
@@ -165,7 +168,8 @@ void submit_recipe_cb(void *screen)
 
   for(int i = 0; i < mix_data.mixAdd.flavorCount; ++i){
     char buffer[256];
-    sprintf(buffer, "%s: %.2f", menu_flavours->items[i + 2]->label, mix_data.mixAdd.flavors[i].volume);
+    sprintf(buffer, "%s: %.2f", menu_flavours->items[i + 2]->label,
+	    volume_to_mass(mix_data.mixAdd.flavors[i].volume, DENS_FLAVOUR));
     menu_item_t *item
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
@@ -174,6 +178,12 @@ void submit_recipe_cb(void *screen)
 
   {
     char buffer[256];
+
+    sprintf(buffer, "Add Nic: %.2f", volume_to_mass(mix_data.nicBase.totalVolume, DENS_NIC));
+    //sprintf(buffer, "Add Nic: %.2f", mix_data.nicBase.totalVolume);
+    menu_item_t *add_nic
+      = create_new_menu_item(ITEM_TYPE_LABEL,
+			     buffer);
     sprintf(buffer, "Add PG: %.2f", mix_data.mixAdd.addPg.volume);
     menu_item_t *add_pg
       = create_new_menu_item(ITEM_TYPE_LABEL,
@@ -182,6 +192,7 @@ void submit_recipe_cb(void *screen)
     menu_item_t *add_vg
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
+    menu_add_item(new_menu, add_nic);
     menu_add_item(new_menu, add_pg);
     menu_add_item(new_menu, add_vg);
   }

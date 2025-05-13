@@ -83,6 +83,7 @@ void handle_flavors(MixAdd* add, float batchSize);
 void calculate_totals(NicBase* base);  // can reuse for target too
 
 float mgml_to_percent(float mgml, float density);
+float volume_to_mass(float volume_ml, float density);
 
 // Master calculation function
 void calculate_mix(MixData* mix);

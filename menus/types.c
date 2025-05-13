@@ -64,7 +64,7 @@ menu_t *create_new_blank_menu()
   return menu;
 }
 
-void menu_add_item(menu_t *menu, menu_item_t *item)\
+void menu_add_item(menu_t *menu, menu_item_t *item)
 {
   if(!menu || !item)
     return;
