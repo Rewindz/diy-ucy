@@ -172,11 +172,18 @@ int parse_save_file(AppMenu_t *menu, const char *save_file)
     return -1;
 
   while ( (nread = getline(&line, &size, stream)) != -1) {
+
+    {
+      char *last_char = (line + strlen(line) - 1);
+      if(*last_char == '\n')
+	*last_char = '\0';
+    }
+    
     int cmd_len = strcspn(line, ":");
     char *cmd = strndup(line, cmd_len);
     char *val = strchr(line, ':') + 1;
 
-    menu_item_t *item;
+    menu_item_t *item = NULL;
     
     if(!strcmp(cmd, "NIC_STR"))
       item = menu->section_nic_base->menu->items[0];
@@ -192,6 +199,20 @@ int parse_save_file(AppMenu_t *menu, const char *save_file)
       item = menu->section_target->menu->items[2];
     else if(!strcmp(cmd, "BA_ML"))
       item = menu->section_batch->menu->items[0];
+
+
+    else if(!strcmp(cmd, "FLA")){
+      int flv_name_len = strcspn(val, "_");
+      char *flv_name = strndup(val, flv_name_len);
+      char *flv_amt = strchr(val, '_') + 1;
+      menu_item_t *flv_item
+	= create_new_menu_item(ITEM_TYPE_INPUT, flv_name);
+      free(flv_item->value);
+      flv_item->value = strdup(flv_amt);
+      add_item_callback(flv_item, flavour_input_cb);
+      menu_add_item(menu->section_flavours->menu, flv_item);
+      free(flv_name);
+    }
     
     if(item){
       free(item->value);

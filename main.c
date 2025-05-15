@@ -35,6 +35,15 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  { //Temp testing
+    char *lbl = calloc(256, sizeof(char));
+    sprintf(lbl, "%p", *screen);
+    menu_item_t *temp
+      = create_new_menu_item(ITEM_TYPE_LABEL, lbl);
+    free(lbl);
+    menu_add_item((*screen)->sections[0]->menu, temp);
+  }
+  
   draw_screen(*screen);
   
   int ch;

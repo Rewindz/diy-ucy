@@ -10,7 +10,15 @@ void load_btn_cb(void *screen)
   free_whole_screen((menu_screen_t *) screen);
   *app_screen = load_app_from_file(file_item->value);
 
+  menu_batch = (*app_screen)->sections[0]->menu;
+  menu_base = (*app_screen)->sections[1]->menu;
+  menu_target = (*app_screen)->sections[2]->menu;
+  menu_flavours = (*app_screen)->sections[3]->menu;
+  menu_submit = (*app_screen)->sections[4]->menu;
+  
   free_menu_item(file_item);
+
+  clear_and_draw(*app_screen);
 }
 
 void save_btn_cb(void *screen)
