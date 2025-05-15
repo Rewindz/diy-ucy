@@ -29,38 +29,39 @@ int main(int argc, char **argv)
 {
   init();
 
-  menu_screen_t *screen = create_app_menu();
-  if(!screen){
+  menu_screen_t **screen = create_app_menu();
+  if(!screen || !*screen){
     endwin();
     return 1;
   }
 
-  draw_screen(screen);
+  draw_screen(*screen);
   
   int ch;
   while((ch = getch()) != 'q'){
     switch (ch){
     case KEY_UP:
-      move_screen_up(screen);
+      move_screen_up(*screen);
       break;
     case KEY_DOWN:
-      move_screen_down(screen);
+      move_screen_down(*screen);
       break;
     case KEY_RIGHT:
-      move_screen_right(screen);
+      move_screen_right(*screen);
       break;
     case KEY_LEFT:
-      move_screen_left(screen);
+      move_screen_left(*screen);
       break;
     case '\n':
-      item_on_enter(screen, get_selected_item(screen));
+      item_on_enter(*screen, get_selected_item(*screen));
       break;
     }
-    draw_screen(screen);
+    draw_screen(*screen);
   }
 
 
-  free_whole_screen(screen);
+  free_whole_screen(*screen);
+  free(screen);
   endwin();
   return 0;
 }

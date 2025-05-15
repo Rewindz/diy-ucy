@@ -1,6 +1,6 @@
 project('diy-ucy', 'c')
 
-files = ['main.c', 'render.c', 'input.c', 'constants.c', 'calcs.c', 'menus/appmenu.c']
+files = ['main.c', 'render.c', 'input.c', 'constants.c', 'calcs.c', 'menus/appmenu.c', 'menus/save.c', 'menus/callbacks.c']
 
 ncursesdep = dependency('ncurses')
 

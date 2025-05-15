@@ -1,24 +1,11 @@
-#include "appmenu.h"
+#include "save.h"
 
 
-MixInputs mix_inputs = {0};
-MixData mix_data = {0};
-int nic_by_weight = 0;
-menu_screen_t **app_screen;
-menu_t *menu_submit;
-menu_t *menu_flavours;
-menu_t *menu_batch;
-menu_t *menu_target;
-menu_t *menu_base;
 
-
-menu_screen_t **create_app_menu()
+AppMenu_t *l_new_menu()
 {
-  
-  menu_screen_t **screen_ptr = calloc(1, sizeof(menu_screen_t **));
-  if(!screen_ptr)
-    return NULL;
-  
+  AppMenu_t *new_appmenu = calloc(1, sizeof(AppMenu_t));
+  if(!new_appmenu) return NULL;
   menu_screen_t *screen;
   { //Create sections
     section_t *section_batch;
@@ -51,9 +38,7 @@ menu_screen_t **create_app_menu()
       sprintf(current_selection->value, "%%");
       menu_t *menu
 	= create_new_menu(5, target_vol, str_lbl, by_vol, by_weight, current_selection);
-    
-      menu_batch = menu;
-      
+          
       section_batch = create_new_section("Batch", menu);
     }
 
@@ -72,7 +57,6 @@ menu_screen_t **create_app_menu()
       menu_t *menu
 	= create_new_menu(3, strength, vg, pg);
 
-      menu_base = menu;
       
       section_nic_base = create_new_section("Nic Base", menu);
 
@@ -92,9 +76,7 @@ menu_screen_t **create_app_menu()
       add_item_callback(pg, target_pg_cb);
       menu_t *menu
 	= create_new_menu(3, strength, vg, pg);
-
-      menu_target = menu;
-      
+            
       section_target = create_new_section("Target", menu);
       
     }
@@ -113,9 +95,7 @@ menu_screen_t **create_app_menu()
       
       menu_t *menu
 	= create_new_menu(2, add_f, remove_f);
-
-      menu_flavours = menu;
-
+      
       section_flavours = create_new_section("Flavours", menu);
 
     }
@@ -129,9 +109,7 @@ menu_screen_t **create_app_menu()
       
       menu_t *menu
 	= create_new_menu(1, submit);
-
-      menu_submit = menu;
-      
+          
       section_recipe = create_new_section("Recipe", menu);
       
     }
@@ -163,11 +141,84 @@ menu_screen_t **create_app_menu()
 				    section_recipe,
 				    section_save
 				    );
-    
-  }
 
-  *screen_ptr = screen;
-  app_screen = screen_ptr;
-  return screen_ptr;
+    new_appmenu->screen = screen;
+    new_appmenu->section_batch = section_batch;
+    new_appmenu->section_nic_base = section_nic_base;
+    new_appmenu->section_target = section_target;
+    new_appmenu->section_flavours = section_flavours;
+    new_appmenu->section_recipe = section_recipe;
+    new_appmenu->section_save = section_save;
+  }
+    
+  return new_appmenu;
 }
 
+/**
+   TODO:
+   Flavours
+   Base type
+
+
+ **/
+int parse_save_file(AppMenu_t *menu, const char *save_file)
+{
+  FILE *stream;
+  char *line = NULL;
+  size_t size = 0;
+  ssize_t nread;
+  stream = fopen(save_file, "r");
+  if(!stream)
+    return -1;
+
+  while ( (nread = getline(&line, &size, stream)) != -1) {
+    int cmd_len = strcspn(line, ":");
+    char *cmd = strndup(line, cmd_len);
+    char *val = strchr(line, ':') + 1;
+
+    menu_item_t *item;
+    
+    if(!strcmp(cmd, "NIC_STR"))
+      item = menu->section_nic_base->menu->items[0];
+    else if(!strcmp(cmd, "NIC_VG"))
+      item = menu->section_nic_base->menu->items[1];
+    else if(!strcmp(cmd, "NIC_PG"))
+      item = menu->section_nic_base->menu->items[2];
+    else if(!strcmp(cmd, "TGT_STR"))
+      item = menu->section_target->menu->items[0];
+    else if(!strcmp(cmd, "TGT_VG"))
+      item = menu->section_target->menu->items[1];
+    else if(!strcmp(cmd, "TGT_PG"))
+      item = menu->section_target->menu->items[2];
+    else if(!strcmp(cmd, "BA_ML"))
+      item = menu->section_batch->menu->items[0];
+    
+    if(item){
+      free(item->value);
+      item->value = strdup(val);
+    }
+
+    free(cmd);
+   
+  }
+
+  free(line);
+  fclose(stream);
+
+  return 0;
+}
+
+//man getline(3)
+menu_screen_t *load_app_from_file(const char *save_file)
+{
+  AppMenu_t *new_menu = l_new_menu();
+  if(!new_menu)
+    abort();
+
+  if(parse_save_file(new_menu, save_file) == -1)
+    abort(); //Change plz
+  
+  menu_screen_t *ret = new_menu->screen;
+  free(new_menu);
+  return ret;
+}
