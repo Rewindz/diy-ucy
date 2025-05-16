@@ -23,6 +23,24 @@ void load_btn_cb(void *screen)
 
 void save_btn_cb(void *screen)
 {
+
+  menu_item_t *file_item
+    = create_new_menu_item(ITEM_TYPE_INPUT,
+			   "Save File Name");
+
+  draw_input_popup(file_item);
+  AppMenu_t menu = {0};
+
+  menu.section_batch = (*app_screen)->sections[0];
+  menu.section_nic_base = (*app_screen)->sections[1];
+  menu.section_target = (*app_screen)->sections[2];
+  menu.section_flavours = (*app_screen)->sections[3];
+
+  if(strlen(file_item->value) > 0)
+     save_app_to_file(&menu, file_item->value);
+
+  free_menu_item(file_item);
+  
 }
 
 void base_pg_cb(void *screen)

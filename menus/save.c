@@ -156,7 +156,6 @@ AppMenu_t *l_new_menu()
 
 /**
    TODO:
-   Flavours
    Base type
 
 
@@ -227,6 +226,48 @@ int parse_save_file(AppMenu_t *menu, const char *save_file)
   fclose(stream);
 
   return 0;
+}
+
+void save_app_to_file(AppMenu_t *menu, const char *save_file)
+{
+  if(!menu || !save_file)
+    return;
+  FILE *stream = fopen(save_file, "w+");
+  if(!stream)
+    return;
+
+  
+  //Probably not safe and bug ridden
+  char *flavours = calloc(1024, sizeof(char));
+  menu_t *fla_menu = menu->section_flavours->menu;
+  for(int i = 2; i < fla_menu->item_count; ++i){
+    char buf[256];
+    sprintf(buf, "FLA:%s_%s\n", fla_menu->items[i]->label, fla_menu->items[i]->value);
+    strcat(flavours, buf);
+  }
+  
+  fprintf(stream,
+	  "NIC_STR:%s\n"
+	  "NIC_VG:%s\n"
+	  "NIC_PG:%s\n"
+	  "TGT_STR:%s\n"
+	  "TGT_VG:%s\n"
+	  "TGT_PG:%s\n"
+	  "BA_ML:%s\n"
+	  "%s",
+	  menu->section_nic_base->menu->items[0]->value,
+	  menu->section_nic_base->menu->items[1]->value,
+	  menu->section_nic_base->menu->items[2]->value,
+	  menu->section_target->menu->items[0]->value,
+	  menu->section_target->menu->items[1]->value,
+	  menu->section_target->menu->items[2]->value,
+	  menu->section_batch->menu->items[0]->value,
+	  flavours
+	  );
+
+  free(flavours);
+  fclose(stream);
+  
 }
 
 //man getline(3)

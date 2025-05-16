@@ -44,6 +44,17 @@ typedef struct
   section_t **sections;
 }menu_screen_t;
 
+typedef struct
+{
+  menu_screen_t *screen;
+  section_t *section_batch;
+  section_t *section_nic_base;
+  section_t *section_target;
+  section_t *section_flavours;
+  section_t *section_recipe;
+  section_t *section_save;
+}AppMenu_t;
+
 void free_menu_item(menu_item_t *item);
 void free_menu_item_arr(int count, menu_item_t **items);
 void free_whole_menu(menu_t *menu);

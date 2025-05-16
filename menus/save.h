@@ -9,6 +9,8 @@
 #include "appmenu.h"
 #include "callbacks.h"
 
+
+void save_app_to_file(AppMenu_t *menu, const char *save_file);
 menu_screen_t *load_app_from_file(const char *save_file);
 
 #endif //SAVE_H_
