@@ -143,6 +143,7 @@ void free_whole_screen(menu_screen_t *screen)
   for(int i = 0; i < screen->count; ++i){
     free_whole_section(screen->sections[i]);
   }
+  free(screen->sections);
   free(screen);
 }
 
