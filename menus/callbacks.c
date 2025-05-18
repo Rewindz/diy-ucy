@@ -134,8 +134,6 @@ void remove_flavour_cb(void *screen)
 
 /**
    TODO:
-   Need to add the nic base from the calculation
-   Save and Load
    Vol and weight in results
    Print the units in the results
    UX?
@@ -187,7 +185,7 @@ void submit_recipe_cb(void *screen)
 
   for(int i = 0; i < mix_data.mixAdd.flavorCount; ++i){
     char buffer[256];
-    sprintf(buffer, "%s: %.2f", menu_flavours->items[i + 2]->label,
+    sprintf(buffer, "%s: %.2fg", menu_flavours->items[i + 2]->label,
 	    volume_to_mass(mix_data.mixAdd.flavors[i].volume, DENS_FLAVOUR));
     menu_item_t *item
       = create_new_menu_item(ITEM_TYPE_LABEL,
@@ -198,16 +196,16 @@ void submit_recipe_cb(void *screen)
   {
     char buffer[256];
 
-    sprintf(buffer, "Add Nic: %.2f", volume_to_mass(mix_data.nicBase.totalVolume, DENS_NIC));
+    sprintf(buffer, "Add Nic: %.2fg", volume_to_mass(mix_data.nicBase.totalVolume, (DENS_NIC * DENS_VG)));
     //sprintf(buffer, "Add Nic: %.2f", mix_data.nicBase.totalVolume);
     menu_item_t *add_nic
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
-    sprintf(buffer, "Add PG: %.2f", mix_data.mixAdd.addPg.volume);
+    sprintf(buffer, "Add PG: %.2fg", volume_to_mass(mix_data.mixAdd.addPg.volume, DENS_PG));
     menu_item_t *add_pg
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
-    sprintf(buffer, "Add VG: %.2f", mix_data.mixAdd.addVg.volume);
+    sprintf(buffer, "Add VG: %.2fg", volume_to_mass(mix_data.mixAdd.addVg.volume, DENS_VG));
     menu_item_t *add_vg
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);

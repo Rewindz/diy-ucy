@@ -19,6 +19,8 @@ void init()
     start_color();
     init_pair(1, COLOR_WHITE, COLOR_BLACK);
     init_pair(2, COLOR_WHITE, COLOR_RED);
+    init_pair(3, COLOR_WHITE, COLOR_BLUE);
+    init_pair(4, COLOR_WHITE, COLOR_CYAN);
   }
 
   mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);

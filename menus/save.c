@@ -199,7 +199,15 @@ int parse_save_file(AppMenu_t *menu, const char *save_file)
     else if(!strcmp(cmd, "BA_ML"))
       item = menu->section_batch->menu->items[0];
 
-
+    else if(!strcmp(cmd, "STR_SEL")){
+      if(!strcmp(val, "%")){
+	nic_by_weight = 0;
+	sprintf(menu->section_batch->menu->items[4]->value, "%%");
+      }else if(!strcmp(val, "MG")){
+	nic_by_weight = 1;
+	sprintf(menu->section_batch->menu->items[4]->value, "mg/ml");
+      }
+    }
     else if(!strcmp(cmd, "FLA")){
       int flv_name_len = strcspn(val, "_");
       char *flv_name = strndup(val, flv_name_len);
