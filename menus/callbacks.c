@@ -6,6 +6,11 @@ void load_btn_cb(void *screen)
     = create_new_menu_item(ITEM_TYPE_INPUT,
 			   "Save File Name");
   draw_input_popup(file_item);
+
+  if(strlen(file_item->value) <= 0){
+    free_menu_item(file_item);
+    return;
+  }
     
   free_whole_screen((menu_screen_t *) screen);
   *app_screen = load_app_from_file(file_item->value);
@@ -29,6 +34,11 @@ void save_btn_cb(void *screen)
 			   "Save File Name");
 
   draw_input_popup(file_item);
+  if(strlen(file_item->value) <= 0){
+    free_menu_item(file_item);
+    return;
+  }
+  
   AppMenu_t menu = {0};
 
   menu.section_batch = (*app_screen)->sections[0];
@@ -132,12 +142,6 @@ void remove_flavour_cb(void *screen)
   clear_and_draw((menu_screen_t *)screen);
 }
 
-/**
-   TODO:
-   Vol and weight in results
-   Print the units in the results
-   UX?
- **/
 void submit_recipe_cb(void *screen)
 {
   int flavour_count = menu_flavours->item_count - 2;
@@ -185,8 +189,8 @@ void submit_recipe_cb(void *screen)
 
   for(int i = 0; i < mix_data.mixAdd.flavorCount; ++i){
     char buffer[256];
-    sprintf(buffer, "%s: %.2fg", menu_flavours->items[i + 2]->label,
-	    volume_to_mass(mix_data.mixAdd.flavors[i].volume, DENS_FLAVOUR));
+    sprintf(buffer, "%s: %.2fg, %.2fml", menu_flavours->items[i + 2]->label,
+	    volume_to_mass(mix_data.mixAdd.flavors[i].volume, DENS_FLAVOUR), mix_data.mixAdd.flavors[i].volume);
     menu_item_t *item
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
@@ -196,19 +200,23 @@ void submit_recipe_cb(void *screen)
   {
     char buffer[256];
 
-    sprintf(buffer, "Add Nic: %.2fg", volume_to_mass(mix_data.nicBase.totalVolume, (DENS_NIC * DENS_VG)));
+    sprintf(buffer, "Add Nic: %.2fg, %.2fml",
+	    volume_to_mass(mix_data.nicBase.totalVolume, (DENS_NIC * DENS_VG)), mix_data.nicBase.totalVolume);
     //sprintf(buffer, "Add Nic: %.2f", mix_data.nicBase.totalVolume);
     menu_item_t *add_nic
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
-    sprintf(buffer, "Add PG: %.2fg", volume_to_mass(mix_data.mixAdd.addPg.volume, DENS_PG));
+    sprintf(buffer, "Add PG: %.2fg, %.2fml",
+	    volume_to_mass(mix_data.mixAdd.addPg.volume, DENS_PG), mix_data.mixAdd.addPg.volume);
     menu_item_t *add_pg
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
-    sprintf(buffer, "Add VG: %.2fg", volume_to_mass(mix_data.mixAdd.addVg.volume, DENS_VG));
+    sprintf(buffer, "Add VG: %.2fg, %.2fml",
+	    volume_to_mass(mix_data.mixAdd.addVg.volume, DENS_VG), mix_data.mixAdd.addVg.volume);
     menu_item_t *add_vg
       = create_new_menu_item(ITEM_TYPE_LABEL,
 			     buffer);
+        
     menu_add_item(new_menu, add_nic);
     menu_add_item(new_menu, add_pg);
     menu_add_item(new_menu, add_vg);

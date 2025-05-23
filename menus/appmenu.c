@@ -11,7 +11,6 @@ menu_t *menu_batch;
 menu_t *menu_target;
 menu_t *menu_base;
 
-
 menu_screen_t **create_app_menu()
 {
   

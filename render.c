@@ -38,7 +38,7 @@ void draw_screen(menu_screen_t *screen)
 
       menu_item_t *m_item = section->menu->items[item];
       
-      attrs = (item == section->menu->selected_item) ?
+      attrs = (item == section->menu->selected_item && sec == screen->selected_section) ?
 	  (A_REVERSE | COLOR_PAIR(1)) : (COLOR_PAIR(1));
       attron(attrs);
 
