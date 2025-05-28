@@ -117,6 +117,7 @@ menu_item_t *create_new_menu_item(item_type_t type, const char *label)
 
   item->type = type;
   item->value = calloc(512, sizeof(char));
+  item->value[0] = '0';
   item->label = strdup(label);
   
   return item;

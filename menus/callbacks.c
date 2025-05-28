@@ -145,8 +145,12 @@ void remove_flavour_cb(void *screen)
 void submit_recipe_cb(void *screen)
 {
   int flavour_count = menu_flavours->item_count - 2;
-  if(flavour_count <= 0)
+  if(flavour_count <= 0){
+    menu_item_t *item
+      = create_new_menu_item(ITEM_TYPE_LABEL, "Please Add A Flavour!");
+    menu_add_item(menu_submit, item);
     return;
+  }
   
   { // Get data from user inputs
     sscanf(menu_batch->items[0]->value, "%f", &mix_inputs.batchSize);
