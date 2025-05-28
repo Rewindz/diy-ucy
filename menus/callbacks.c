@@ -146,9 +146,21 @@ void submit_recipe_cb(void *screen)
 {
   int flavour_count = menu_flavours->item_count - 2;
   if(flavour_count <= 0){
+    
     menu_item_t *item
       = create_new_menu_item(ITEM_TYPE_LABEL, "Please Add A Flavour!");
-    menu_add_item(menu_submit, item);
+
+    menu_item_t *submit_btn
+    = create_new_menu_item(ITEM_TYPE_BUTTON,
+			   "Submit");
+    add_item_callback(submit_btn, submit_recipe_cb);
+
+    menu_t * new_menu = create_new_menu(2, item, submit_btn);
+    replace_menu((menu_screen_t *)screen, menu_submit, new_menu);
+    menu_submit = new_menu;
+
+    clear_and_draw((menu_screen_t *)screen);
+    
     return;
   }
   
